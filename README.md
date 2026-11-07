@@ -20,7 +20,7 @@
 ## לפני פרסום
 - הוסף Google Maps API Key אמיתי ב-`AndroidManifest.xml`.
 - החלף את `upgradeToProForTesting()` ב-Google Play Billing מלא.
-- הוסף שמירה קבועה (Room/DataStore או שרת).
+- ~~שמירה קבועה~~ — קיימת ב-SharedPreferences; שקול מעבר ל-Room אם הנתונים יגדלו.
 - הוסף מצלמת QR וסורק.
 
 זהו MVP התחלתי. רכישות אמיתיות חייבות לעבור אימות של Google Play Billing ולא רק כפתור מקומי.
