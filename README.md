@@ -1,11 +1,26 @@
-<div align="center">
+# BOXLY 📦
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+אפליקציית Android לניהול ארגזים במעבר דירה.
 
-  <h1>Built with AI Studio</h2>
+## Free
+- עד 20 ארגזים
+- חיפוש חפצים
+- שמות חדרים ומיקומים
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## Pro — ₪20
+- ארגזים ללא הגבלה
+- מיועד להוסיף מפה ומיקום GPS
+- QR לכל ארגז
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## פתיחה
+1. פתח את התיקייה ב-Android Studio.
+2. המתן ל-Gradle Sync.
+3. הפעל על מכשיר Android.
 
-</div>
+## לפני פרסום
+- הוסף Google Maps API Key אמיתי ב-`AndroidManifest.xml`.
+- החלף את `upgradeToProForTesting()` ב-Google Play Billing מלא.
+- הוסף שמירה קבועה (Room/DataStore או שרת).
+- הוסף מצלמת QR וסורק.
+
+זהו MVP התחלתי. רכישות אמיתיות חייבות לעבור אימות של Google Play Billing ולא רק כפתור מקומי.
