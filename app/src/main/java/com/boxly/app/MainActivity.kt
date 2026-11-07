@@ -1,6 +1,11 @@
 package com.boxly.app
 
+import android.Manifest
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -34,6 +39,19 @@ fun BoxlyApp(vm: BoxViewModel = viewModel()) {
     var showUpgrade by remember { mutableStateOf(false) }
     var qrBox by remember { mutableStateOf<Box?>(null) }
     val results = vm.search(query)
+    val context = LocalContext.current
+    var gpsBox by remember { mutableStateOf<Box?>(null) }
+
+    fun saveLocation(box: Box) {
+        val loc = lastKnownLocation(context)
+        if (loc != null) vm.setLocation(box.id, loc.latitude, loc.longitude)
+        else Toast.makeText(context, "לא נמצא מיקום. הפעל GPS ונסה שוב", Toast.LENGTH_SHORT).show()
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        val box = gpsBox
+        if (granted && box != null) saveLocation(box)
+        gpsBox = null
+    }
 
     Scaffold(
         topBar = {
@@ -57,7 +75,18 @@ fun BoxlyApp(vm: BoxViewModel = viewModel()) {
             Spacer(Modifier.height(8.dp))
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(results, key = { it.id }) { box ->
-                    BoxCard(box, vm, onQr = { if (vm.isPro) qrBox = box else showUpgrade = true })
+                    BoxCard(
+                        box, vm,
+                        onQr = { if (vm.isPro) qrBox = box else showUpgrade = true },
+                        onSaveGps = {
+                            if (!vm.isPro) showUpgrade = true
+                            else {
+                                gpsBox = box
+                                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
+                        },
+                        onOpenMap = { openOnMap(context, box) },
+                    )
                 }
             }
         }
@@ -75,7 +104,7 @@ fun BoxlyApp(vm: BoxViewModel = viewModel()) {
 }
 
 @Composable
-fun BoxCard(box: Box, vm: BoxViewModel, onQr: () -> Unit) {
+fun BoxCard(box: Box, vm: BoxViewModel, onQr: () -> Unit, onSaveGps: () -> Unit, onOpenMap: () -> Unit) {
     var newItem by remember { mutableStateOf("") }
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp)) {
@@ -87,6 +116,10 @@ fun BoxCard(box: Box, vm: BoxViewModel, onQr: () -> Unit) {
                 }
                 IconButton(onClick = onQr) { Icon(Icons.Default.QrCode, "QR לארגז") }
                 IconButton(onClick = { vm.deleteBox(box.id) }) { Icon(Icons.Default.Delete, "מחק ארגז") }
+            }
+            Row {
+                TextButton(onClick = onSaveGps) { Text("📍 שמור מיקום נוכחי") }
+                if (box.lat != null) TextButton(onClick = onOpenMap) { Text("🗺 פתח במפה") }
             }
             box.items.forEach { item ->
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -19,6 +19,8 @@ class BoxStore(context: Context) {
                 room = o.getString("room"),
                 location = o.getString("location"),
                 items = List(items.length()) { items.getString(it) },
+                lat = if (o.has("lat")) o.getDouble("lat") else null,
+                lng = if (o.has("lng")) o.getDouble("lng") else null,
             )
         }
     } catch (e: Exception) {
@@ -34,6 +36,8 @@ class BoxStore(context: Context) {
                 put("room", b.room)
                 put("location", b.location)
                 put("items", JSONArray(b.items))
+                b.lat?.let { put("lat", it) }
+                b.lng?.let { put("lng", it) }
             })
         }
         prefs.edit().putString(KEY, arr.toString()).apply()

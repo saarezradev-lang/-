@@ -18,7 +18,7 @@
 3. הפעל על מכשיר Android.
 
 ## לפני פרסום
-- הוסף Google Maps API Key אמיתי ב-`AndroidManifest.xml`.
+- מיקום GPS נשמר ונפתח באפליקציית המפות של המכשיר (בלי מפתח). מפתח Google Maps נדרש רק אם מוסיפים מפה מוטמעת.
 - החלף את `upgradeToProForTesting()` ב-Google Play Billing מלא.
 - ~~שמירה קבועה~~ — קיימת ב-SharedPreferences; שקול מעבר ל-Room אם הנתונים יגדלו.
 - QR לכל ארגז נוצר (Pro). נשאר להוסיף מצלמה וסורק QR.

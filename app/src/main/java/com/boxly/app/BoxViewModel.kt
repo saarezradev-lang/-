@@ -13,6 +13,8 @@ data class Box(
     val room: String,
     val location: String,
     val items: List<String> = emptyList(),
+    val lat: Double? = null,
+    val lng: Double? = null,
 )
 
 const val FREE_BOX_LIMIT = 20
@@ -58,6 +60,14 @@ class BoxViewModel(app: Application) : AndroidViewModel(app) {
         return boxes.filter { b ->
             b.name.contains(q, true) || b.room.contains(q, true) ||
                 b.location.contains(q, true) || b.items.any { it.contains(q, true) }
+        }
+    }
+
+    fun setLocation(boxId: Long, lat: Double, lng: Double) {
+        val i = boxes.indexOfFirst { it.id == boxId }
+        if (i >= 0) {
+            boxes[i] = boxes[i].copy(lat = lat, lng = lng)
+            persist()
         }
     }
 
