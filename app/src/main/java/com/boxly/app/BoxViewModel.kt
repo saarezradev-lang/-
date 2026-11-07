@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 
 data class Box(
     val id: Long,
@@ -24,6 +25,9 @@ class BoxViewModel(app: Application) : AndroidViewModel(app) {
     val boxes = mutableStateListOf<Box>().apply { addAll(store.load()) }
     var isPro by mutableStateOf(false)
         private set
+    val billing = BillingManager(app, viewModelScope) { isPro = it }
+
+    init { billing.connect() }
     private var nextId = (boxes.maxOfOrNull { it.id } ?: 0L) + 1
 
     val canAddBox: Boolean get() = isPro || boxes.size < FREE_BOX_LIMIT
@@ -73,6 +77,5 @@ class BoxViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun persist() = store.save(boxes.toList())
 
-    // TODO לפני פרסום: להחליף ב-Google Play Billing מלא עם אימות רכישה.
-    fun upgradeToProForTesting() { isPro = true }
+    override fun onCleared() { billing.disconnect() }
 }

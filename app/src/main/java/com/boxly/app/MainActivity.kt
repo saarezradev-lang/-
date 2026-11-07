@@ -1,6 +1,7 @@
 package com.boxly.app
 
 import android.Manifest
+import android.app.Activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -92,13 +93,16 @@ fun BoxlyApp(vm: BoxViewModel = viewModel()) {
         }
     }
 
+    vm.billing.message?.let { msg ->
+        LaunchedEffect(msg) { Toast.makeText(context, msg, Toast.LENGTH_LONG).show(); vm.billing.message = null }
+    }
     qrBox?.let { QrDialog(it) { qrBox = null } }
     if (showAdd) AddBoxDialog(onDismiss = { showAdd = false }) { n, r, l -> vm.addBox(n, r, l); showAdd = false }
     if (showUpgrade) AlertDialog(
         onDismissRequest = { showUpgrade = false },
-        title = { Text("Boxly Pro — ₪20") },
-        text = { Text("ארגזים ללא הגבלה, מפה ומיקום GPS ו-QR לכל ארגז (בקרוב).\n\nגרסת בדיקה: השדרוג מקומי בלבד.") },
-        confirmButton = { TextButton(onClick = { vm.upgradeToProForTesting(); showUpgrade = false }) { Text("שדרג (בדיקה)") } },
+        title = { Text("Boxly Pro — ${vm.billing.priceText ?: "₪20"}") },
+        text = { Text("ארגזים ללא הגבלה, מפה ומיקום GPS ו-QR לכל ארגז (בקרוב).") },
+        confirmButton = { TextButton(onClick = { (context as? Activity)?.let { vm.billing.launchPurchase(it) }; showUpgrade = false }) { Text("שדרג") } },
         dismissButton = { TextButton(onClick = { showUpgrade = false }) { Text("סגור") } },
     )
 }

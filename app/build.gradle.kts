@@ -31,4 +31,5 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("com.android.billingclient:billing-ktx:7.0.0")
 }

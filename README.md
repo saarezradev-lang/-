@@ -19,7 +19,8 @@
 
 ## לפני פרסום
 - מיקום GPS נשמר ונפתח באפליקציית המפות של המכשיר (בלי מפתח). מפתח Google Maps נדרש רק אם מוסיפים מפה מוטמעת.
-- החלף את `upgradeToProForTesting()` ב-Google Play Billing מלא.
+- Google Play Billing מחובר (`BillingManager`). ב-Play Console: צור מוצר חד-פעמי (In-app product) עם המזהה `boxly_pro`, מחיר ₪20, והוסף את החשבון שלך כ-License tester. הרכישה עובדת רק באפליקציה שהותקנה מ-Google Play (גם בערוץ בדיקה פנימית).
+- אמת רכישות בשרת מול Google Play Developer API (`purchaseToken`) לפני פרסום רחב.
 - ~~שמירה קבועה~~ — קיימת ב-SharedPreferences; שקול מעבר ל-Room אם הנתונים יגדלו.
 - QR לכל ארגז נוצר (Pro). נשאר להוסיף מצלמה וסורק QR.
 
