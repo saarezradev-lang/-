@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vanguard Strike – Wide</title>
+<style>
+:root{
+  --bg:#0b0c0e; --panel:#14161a; --panel2:#1b1e23; --line:#2a2d33;
+  --gold:#e0a526; --gold2:#f3c04a; --text:#f1f1f1; --mute:#8b8f98;
+  --green:#3ddc84; --red:#e5484d; --blue:#4aa3ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Segoe UI",Heebo,Arial,sans-serif;min-height:100vh;
+  background-image:radial-gradient(ellipse at 70% 0%,#2a2214 0,transparent 55%),radial-gradient(ellipse at 0% 100%,#10151c 0,transparent 50%)}
+header{display:flex;align-items:center;gap:24px;padding:14px clamp(16px,4vw,48px);border-bottom:1px solid var(--line);background:#0d0e11cc;position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+.logo{display:flex;align-items:center;gap:10px;direction:ltr;font-weight:800;letter-spacing:2px;line-height:1}
+.logo b{font-size:22px}.logo small{display:block;color:var(--gold);font-size:11px;letter-spacing:5px}
+.logo svg{width:34px;height:34px}
+nav{display:flex;gap:6px;margin-inline:auto}
+nav button{background:none;border:0;color:var(--mute);font:inherit;font-weight:600;padding:10px 22px;border-radius:999px;cursor:pointer;display:flex;gap:8px;align-items:center;transition:.2s}
+nav button:hover{color:var(--text)}
+nav button.on{background:var(--panel2);color:var(--gold);box-shadow:inset 0 0 0 1px #3a3220}
+.me{display:flex;gap:10px;align-items:center;direction:ltr}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:14px;display:flex;gap:8px;align-items:center}
+.chip i{width:14px;height:14px;border-radius:50%;background:var(--gold);display:inline-block}
+.chip i.g{background:#8fb4d9}
+.avatar{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#444,#222);border:1px solid var(--line)}
+main{padding:28px clamp(16px,4vw,48px) 60px;max-width:1600px;margin:auto}
+section{display:none;animation:in .3s}
+section.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+h2{font-size:26px;margin-bottom:6px}
+.bar{width:48px;height:4px;background:var(--gold);border-radius:2px;margin:6px 0 20px}
+.btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1305;border:0;border-radius:12px;font:inherit;font-weight:800;padding:14px 28px;cursor:pointer;box-shadow:0 6px 24px #e0a52633;transition:.2s}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.btn.ghost{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
+.ph{background:linear-gradient(135deg,#23262c,#101215);border:1px solid var(--line);position:relative;overflow:hidden}
+.ph::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,#ffffff05 22px 23px)}
+
+/* Lobby */
+.lobby{display:grid;grid-template-columns:2fr 1fr;gap:24px}
+.hero{border-radius:20px;min-height:460px;padding:32px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero h1{direction:ltr;text-align:right;font-size:clamp(34px,5vw,64px);font-style:italic;font-weight:900;position:relative;z-index:1;color:#d8d8d8}
+.gun{position:absolute;inset:12% 6% 30% 6%;z-index:1}
+.gun svg{width:100%;height:100%}
+.side{display:flex;flex-direction:column;gap:14px}
+.mode{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;transition:.2s}
+.mode:hover,.mode.on{border-color:var(--gold);background:var(--panel2)}
+.mode span{direction:ltr}
+.side .btn{padding:20px;font-size:20px;margin-top:auto}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+
+/* Squad */
+.squad{display:grid;grid-template-columns:1.4fr 1fr;gap:24px}
+.classes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cls{height:260px;border-radius:16px;display:flex;align-items:flex-end;padding:16px;font-weight:700;cursor:pointer;border:1px solid var(--line);transition:.2s}
+.cls span{position:relative;z-index:1}
+.cls.on,.cls:hover{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.friends{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.friends h3{font-size:15px;color:var(--gold);margin-bottom:12px;display:flex;justify-content:space-between}
+.fr{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);direction:ltr}
+.fr .avatar{position:relative}
+.fr .avatar::after{content:"";position:absolute;right:-3px;bottom:-3px;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--panel)}
+.fr b{margin-right:auto;font-weight:600}
+.fr button{background:#2b2616;color:var(--gold);border:1px solid #4a3d1a;border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px}
+.actions{display:flex;gap:12px;margin-top:20px;grid-column:1/-1}
+.actions .btn{flex:1}.actions .btn:first-child{flex:2}
+
+/* Store */
+.banner{border-radius:20px;padding:36px;min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:16px;margin-bottom:28px}
+.banner h1{direction:ltr;font-style:italic;font-size:clamp(28px,4vw,48px);position:relative;z-index:1}
+.banner .btn,.banner .tag{position:relative;z-index:1}
+.tag{position:absolute!important;top:0;inset-inline-start:0;background:var(--gold);color:#1a1305;font-weight:900;padding:8px 18px;border-end-end-radius:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.item{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;transition:.2s}
+.item:hover{border-color:var(--gold);transform:translateY(-3px)}
+.item .ph{height:120px;border-radius:10px;margin-bottom:12px;display:grid;place-items:center}
+.item h4{direction:ltr;text-align:right;margin-bottom:10px}
+.st{display:grid;grid-template-columns:50px 1fr 46px;gap:8px;align-items:center;font-size:12px;color:var(--mute);margin-top:6px;direction:rtl}
+.st .t{height:5px;background:#2a2d33;border-radius:3px;overflow:hidden}
+.st .t i{display:block;height:100%;background:var(--gold)}
+.st em{font-style:normal;direction:ltr;color:var(--text)}
+h3.sec{margin:28px 0 14px;color:var(--gold)}
+
+/* HUD */
+.hud{border-radius:20px;aspect-ratio:21/9;min-height:360px;position:relative;overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(180deg,#0a0d12 0,#1a1610 55%,#0b0a08 100%)}
+.hud::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 35%,#ffb84a55 0,transparent 8%),radial-gradient(circle at 60% 28%,#ffb84a44 0,transparent 7%),radial-gradient(circle at 85% 40%,#ffb84a44 0,transparent 8%)}
+.hud>*{position:absolute}
+.mini{top:16px;inset-inline-start:16px;width:120px;height:120px;border-radius:50%;border:2px solid #ffffff44;background:#0008;display:grid;place-items:center}
+.mini i{width:8px;height:8px;border-radius:50%;background:var(--blue);position:absolute}
+.kill{top:20px;left:50%;transform:translateX(-50%);background:#000a;border:1px solid var(--line);padding:6px 16px;border-radius:8px;font-size:13px;direction:ltr}
+.kill b{color:var(--red)}
+.cross{top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%);border:2px solid #fff9;border-radius:50%}
+.cross::after{content:"";position:absolute;inset:19px;background:#fff;border-radius:50%}
+.hp{bottom:20px;left:50%;transform:translateX(-50%);width:min(360px,60%);display:flex;gap:10px;align-items:center;background:#000a;padding:8px 14px;border-radius:12px;direction:ltr}
+.hp .t{flex:1;height:8px;border-radius:4px;background:#333}.hp .t i{display:block;width:100%;height:100%;background:var(--gold);border-radius:4px}
+.stick{bottom:24px;inset-inline-start:30px;width:96px;height:96px;border-radius:50%;background:#0007;border:1px solid #fff3}
+.fire{bottom:24px;inset-inline-end:30px;width:84px;height:84px;border-radius:50%;background:#0007;border:1px solid #fff3;display:grid;place-items:center;font-size:28px}
+.hudgun{bottom:-10px;left:50%;width:46%;height:48%;transform:translateX(0)}
+.hudgun svg{width:100%;height:100%}
+.note{color:var(--mute);margin-top:14px;font-size:14px}
+
+@media(max-width:900px){.lobby,.squad{grid-template-columns:1fr}nav{overflow:auto}.me .chip:nth-child(n+3){display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 40 40"><path d="M4 6l16 28L36 6h-8L20 20 12 6z" fill="#e0a526"/></svg>
+    <div><b>VANGUARD</b><small>STRIKE</small></div>
+  </div>
+  <nav id="nav">
+    <button data-t="lobby" class="on">🏠 לובי</button>
+    <button data-t="squad">👥 חוליה</button>
+    <button data-t="store">🛒 חנות</button>
+    <button data-t="game">🎯 במשחק</button>
+  </nav>
+  <div class="me">
+    <div class="chip"><i></i>24.5K</div>
+    <div class="chip"><i class="g"></i>1,200</div>
+    <div class="chip"><div class="avatar"></div>[LVL 54] GHOST_94</div>
+  </div>
+</header>
+
+<main>
+<!-- LOBBY -->
+<section id="lobby" class="on">
+  <div class="lobby">
+    <div class="hero ph">
+      <div class="gun"><svg viewBox="0 0 600 200" fill="#0b0c0e" stroke="#555" stroke-width="2"><rect x="40" y="80" width="360" height="34" rx="6"/><rect x="400" y="86" width="150" height="14"/><rect x="150" y="50" width="120" height="28" rx="4"/><path d="M230 114l24 80h40l-14-80z"/><path d="M60 80l-40 60h60l30-30z"/><rect x="270" y="114" width="60" height="26" rx="4"/></svg></div>
+      <h1>M4A1-CUSTOM</h1>
+    </div>
+    <div class="side">
+      <div class="mode on"><span>3v3 טקטי</span>‹</div>
+      <div class="mode"><span>Search &amp; Destroy</span>‹</div>
+      <div class="stat"><div style="color:var(--mute);font-size:13px">דירוג עונתי</div><div style="font-size:28px;font-weight:800;color:var(--gold)">Gold II</div></div>
+      <button class="btn" onclick="go('game')">התחל חיפוש</button>
+    </div>
+  </div>
+</section>
+
+<!-- SQUAD -->
+<section id="squad">
+  <h2>חדר חוליה 3v3</h2><div class="bar"></div>
+  <div class="squad">
+    <div class="classes">
+      <div class="cls ph"><span>סיוע כבד</span></div>
+      <div class="cls ph"><span>צלף</span></div>
+      <div class="cls ph on"><span>מפקד</span></div>
+    </div>
+    <div class="friends">
+      <h3><span>חברים מקוונים</span><span>3</span></h3>
+      <div class="fr"><div class="avatar"></div><b>VIPER_07</b><button>הזמנה +</button></div>
+      <div class="fr"><div class="avatar"></div><b>NOVA_X</b><button>הזמנה +</button></div>
+      <div class="fr"><div class="avatar"></div><b>Clan 18</b><button>הזמנה +</button></div>
+    </div>
+    <div class="actions">
+      <button class="btn">⚔ תקיפה</button>
+      <button class="btn ghost">🛡 החזק</button>
+      <button class="btn ghost">↩ סגת</button>
+    </div>
+  </div>
+</section>
+
+<!-- STORE -->
+<section id="store">
+  <div class="banner ph">
+    <div class="tag">-40%</div>
+    <h1>Shadow Stinger Ultra Bundle</h1>
+    <button class="btn">רכוש חבילה</button>
+  </div>
+  <h3 class="sec">צ'וקים</h3>
+  <div class="grid">
+    <div class="item"><div class="ph">⬬</div><h4>Apex Choke</h4>
+      <div class="st">דיוק<div class="t"><i style="width:70%"></i></div><em>+12%</em></div>
+      <div class="st">רתע<div class="t"><i style="width:40%"></i></div><em>-18%</em></div></div>
+    <div class="item"><div class="ph">⬬</div><h4>Muzzle Choke Tactical</h4>
+      <div class="st">דיוק<div class="t"><i style="width:50%"></i></div><em>+8%</em></div>
+      <div class="st">רתע<div class="t"><i style="width:55%"></i></div><em>-25%</em></div></div>
+    <div class="item"><div class="ph">🎯</div><h4>AX-50 Blue Dragon</h4>
+      <div class="st">נזק<div class="t"><i style="width:92%"></i></div><em>98</em></div>
+      <div class="st">נדיר<div class="t"><i style="width:100%;background:var(--blue)"></i></div><em>אפיק</em></div></div>
+  </div>
+</section>
+
+<!-- GAME HUD -->
+<section id="game">
+  <div class="hud">
+    <div class="mini"><i style="top:40px;right:50px"></i><i style="top:60px;right:30px"></i><i style="top:78px;right:62px;background:var(--red)"></i></div>
+    <div class="kill">GHOST_94 ✕ <b>VIPER</b></div>
+    <div class="cross"></div>
+    <div class="stick"></div>
+    <div class="fire">✎</div>
+    <div class="hp">✚ 100<div class="t"><i></i></div></div>
+    <div class="hudgun"><svg viewBox="0 0 600 260" fill="#050608" stroke="#333" stroke-width="2"><path d="M600 260V150L330 100H180l-60 70 60 90z"/><rect x="300" y="60" width="80" height="50" rx="6"/></svg></div>
+  </div>
+  <p class="note">תצוגת HUD רחבה (יחס 21:9) – לחץ על "התחל חיפוש" בלובי כדי להגיע לכאן.</p>
+</section>
+</main>
+
+<script>
+function go(t){
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  try{history.replaceState(null,'','#'+t)}catch(e){}
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('on'));m.classList.add('on')});
+document.querySelectorAll('.cls').forEach(c=>c.onclick=()=>{document.querySelectorAll('.cls').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
+if(location.hash)go(location.hash.slice(1));
+</script>
+</body>
+</html>
