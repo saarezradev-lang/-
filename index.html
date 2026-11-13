@@ -120,6 +120,19 @@ td{font-variant-numeric:tabular-nums}
 .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mute)}
 .pill.on{color:var(--green)}.pill.on::before{background:var(--green)}
 .empty{padding:28px;text-align:center;color:var(--mute)}
+/* Game */
+.hud{cursor:none;touch-action:none;user-select:none}
+.hud>canvas{inset:0;width:100%;height:100%}
+.hud>canvas.mini{inset:auto;top:16px;inset-inline-start:16px;width:120px;height:120px;border-radius:50%;border:2px solid #ffffff44;background:#0008}
+.hud>*:not(.ov){pointer-events:none}
+.hud .fire{pointer-events:auto;cursor:pointer}
+.score{top:20px;inset-inline-end:20px;background:#000a;border:1px solid var(--line);padding:6px 14px;border-radius:8px;font-size:14px}
+.score b{color:var(--gold);font-variant-numeric:tabular-nums}
+.hp span{min-width:28px;text-align:center;font-variant-numeric:tabular-nums}
+.hp i{transition:width .15s}
+.hudgun{left:48%;transition:transform .06s}.hudgun.kick{transform:translateY(16px)}
+.ov{inset:0;background:#000b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;z-index:3;cursor:default}
+.ov h3{font-size:30px;color:var(--gold)}.ov p{max-width:420px;color:var(--mute)}.ov small{color:var(--mute)}
 /* Phone landscape: short viewport, two-column everywhere, compact chrome */
 @media (orientation:landscape) and (max-height:520px){
   header{padding-block:6px;gap:12px;flex-wrap:nowrap}
@@ -243,16 +256,17 @@ td{font-variant-numeric:tabular-nums}
 
 <!-- GAME HUD -->
 <section id="game">
-  <div class="hud">
-    <div class="mini"><i style="top:40px;right:50px"></i><i style="top:60px;right:30px"></i><i style="top:78px;right:62px;background:var(--red)"></i></div>
-    <div class="kill">GHOST_94 ✕ <b>VIPER</b></div>
-    <div class="cross"></div>
-    <div class="stick"></div>
-    <div class="fire">✎</div>
-    <div class="hp">✚ 100<div class="t"><i></i></div></div>
-    <div class="hudgun"><svg viewBox="0 0 600 260" fill="#050608" stroke="#333" stroke-width="2"><path d="M600 260V150L330 100H180l-60 70 60 90z"/><rect x="300" y="60" width="80" height="50" rx="6"/></svg></div>
+  <div class="hud" id="hud">
+    <canvas id="cv"></canvas>
+    <canvas class="mini" id="mm" width="120" height="120"></canvas>
+    <div class="kill" id="kill">GHOST_94 ✕ —</div>
+    <div class="score">ניקוד <b id="score">0</b> · שיא <b id="best">0</b></div>
+    <div class="cross" id="cross"></div>
+    <div class="hudgun" id="gun"><svg viewBox="0 0 600 260" fill="#050608" stroke="#333" stroke-width="2"><path d="M600 260V150L330 100H180l-60 70 60 90z"/><rect x="300" y="60" width="80" height="50" rx="6"/></svg></div>
+    <div class="hp">✚ <span id="hpn">100</span><div class="t"><i id="hpb"></i></div><span id="ammo">30</span>/30</div>
+    <div class="fire" id="reload">↻</div>
+    <div class="ov" id="ov"><h3 id="ovT">Vanguard Range</h3><p id="ovP">הפל כמה שיותר אויבים לפני שהם יורים בך. ירייה בראש = נזק כפול.</p><button class="btn" id="startBtn">התחל</button><small>לחיצה / מגע = ירי · R או ↻ = טעינה</small></div>
   </div>
-  <p class="note">תצוגת HUD רחבה (יחס 21:9) – לחץ על "התחל חיפוש" בלובי כדי להגיע לכאן.</p>
 </section>
 </main>
 
@@ -269,11 +283,95 @@ document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{document.querySelec
 document.querySelectorAll('.cls').forEach(c=>c.onclick=()=>{document.querySelectorAll('.cls').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
 if(location.hash)go(location.hash.slice(1));
 
+
+/* ---- Game: Vanguard Range ---- */
+const $=id=>document.getElementById(id);
+(function(){
+const hud=$('hud'),cv=$('cv'),ctx=cv.getContext('2d'),mm=$('mm').getContext('2d');
+let W=300,H=200;
+function size(){const r=hud.getBoundingClientRect();if(r.width){W=cv.width=Math.round(r.width);H=cv.height=Math.round(r.height)}}
+new ResizeObserver(size).observe(hud);size();
+let best=0;try{best=+localStorage.getItem('vs-best')||0}catch(e){}
+$('best').textContent=best;
+const NAMES=['VIPER','NOVA_X','RAZOR','HAWK','ECHO'];
+const G={run:false,hp:100,ammo:30,score:0,en:[],spawn:0,reload:0,flash:0,hurt:0,last:0};
+const ui=()=>{$('hpn').textContent=Math.max(0,Math.round(G.hp));$('hpb').style.width=Math.max(0,G.hp)+'%';$('ammo').textContent=G.reload>0?'…':G.ammo;$('score').textContent=G.score};
+function spawn(){if(G.en.length>=4)return;G.en.push({x:.1+Math.random()*.8,s:.6+Math.random()*.7,vx:(Math.random()<.5?-1:1)*(.03+Math.random()*.05),hp:100,fuse:1.7+Math.random()*1.2,name:NAMES[Math.random()*5|0]})}
+const geo=e=>{const h=H*.28*e.s,fy=H*(.52+.2*(e.s-.6)/.7),w=h*.36,x=e.x*W;return{h,fy,w,x,hy:fy-h*.9,hr:h*.11}};
+function startReload(){if(!G.run||G.reload>0||G.ammo===30)return;G.reload=1.1;ui()}
+function shoot(px,py){
+  if(!G.run||G.reload>0)return;
+  if(G.ammo<=0){startReload();return}
+  G.ammo--;G.flash=.08;const gun=$('gun');gun.classList.add('kick');setTimeout(()=>gun.classList.remove('kick'),70);
+  const order=G.en.slice().sort((a,b)=>b.s-a.s);
+  for(const e of order){
+    const g=geo(e);let head=Math.hypot(px-g.x,py-g.hy)<=g.hr*1.3;
+    const body=!head&&px>g.x-g.w/2&&px<g.x+g.w/2&&py>g.fy-g.h*.8&&py<g.fy;
+    if(head||body){
+      e.hp-=head?100:50;G.score+=head?150:50;
+      if(e.hp<=0){G.score+=100;G.en.splice(G.en.indexOf(e),1);$('kill').innerHTML='GHOST_94 '+(head?'★ ':'')+'✕ <b>'+e.name+'</b>'}
+      break;
+    }
+  }
+  if(G.ammo===0)startReload();
+  ui();
+}
+function over(){
+  G.run=false;
+  if(G.score>best){best=G.score;$('best').textContent=best;try{localStorage.setItem('vs-best',best)}catch(e){}}
+  $('ovT').textContent='הודח';$('ovP').textContent='ניקוד: '+G.score+' · שיא: '+best;$('startBtn').textContent='שחק שוב';$('ov').style.display='flex';
+}
+function start(){Object.assign(G,{run:true,hp:100,ammo:30,score:0,en:[],spawn:.4,reload:0,flash:0,hurt:0});$('kill').textContent='GHOST_94 ✕ —';$('ov').style.display='none';ui()}
+$('startBtn').onclick=start;
+hud.addEventListener('pointermove',e=>{const r=hud.getBoundingClientRect(),c=$('cross');c.style.left=(e.clientX-r.left)+'px';c.style.top=(e.clientY-r.top)+'px'});
+hud.addEventListener('pointerdown',e=>{
+  if(e.target.closest('.ov'))return;
+  const r=hud.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+  const c=$('cross');c.style.left=(e.clientX-r.left)+'px';c.style.top=(e.clientY-r.top)+'px';
+  shoot(x,y);
+});
+$('reload').addEventListener('pointerdown',e=>{e.stopPropagation();startReload()});
+addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R'||e.key==='ר')&&curTab==='game')startReload()});
+function draw(){
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#090c11');g.addColorStop(.6,'#1a1610');g.addColorStop(1,'#0b0a08');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  for(const [lx,ly] of [[.2,.3],[.55,.24],[.85,.34]]){const r=ctx.createRadialGradient(W*lx,H*ly,0,W*lx,H*ly,H*.28);r.addColorStop(0,'rgba(255,184,74,.35)');r.addColorStop(1,'rgba(255,184,74,0)');ctx.fillStyle=r;ctx.fillRect(0,0,W,H)}
+  ctx.fillStyle='#0d0e11';ctx.fillRect(0,H*.42,W,H*.1);
+  ctx.fillStyle='#14110c';for(const [cx,cw,ch] of [[.04,.14,.2],[.3,.1,.14],[.7,.16,.22],[.9,.12,.16]])ctx.fillRect(W*cx,H*.62-H*ch,W*cw,H*ch);
+  ctx.fillStyle='#100d09';ctx.fillRect(0,H*.62,W,H*.38);
+  for(const e of G.en.slice().sort((a,b)=>a.s-b.s)){
+    const q=geo(e),hot=e.fuse<.7;
+    if(hot){ctx.fillStyle='rgba(229,72,77,.25)';ctx.beginPath();ctx.arc(q.x,q.fy-q.h*.5,q.h*.6,0,7);ctx.fill()}
+    ctx.fillStyle=hot?'#3a1416':'#050608';ctx.strokeStyle=hot?'#e5484d':'#333';ctx.lineWidth=2;
+    ctx.fillRect(q.x-q.w/2,q.fy-q.h*.8,q.w,q.h*.8);ctx.strokeRect(q.x-q.w/2,q.fy-q.h*.8,q.w,q.h*.8);
+    ctx.beginPath();ctx.arc(q.x,q.hy,q.hr,0,7);ctx.fill();ctx.stroke();
+  }
+  if(G.hurt>0){ctx.fillStyle='rgba(229,72,77,'+G.hurt+')';ctx.fillRect(0,0,W,H)}
+  if(G.flash>0){const r=ctx.createRadialGradient(W*.5,H*.8,0,W*.5,H*.8,H*.35);r.addColorStop(0,'rgba(255,220,120,.6)');r.addColorStop(1,'rgba(255,220,120,0)');ctx.fillStyle=r;ctx.fillRect(0,0,W,H)}
+  mm.clearRect(0,0,120,120);mm.fillStyle='#4aa3ff';mm.beginPath();mm.moveTo(60,66);mm.lineTo(54,78);mm.lineTo(66,78);mm.fill();
+  mm.fillStyle='#e5484d';for(const e of G.en){mm.beginPath();mm.arc(60+(e.x-.5)*90,60-e.s*40,4,0,7);mm.fill()}
+}
+function loop(ts){
+  const dt=Math.min(.05,(ts-G.last)/1000||0);G.last=ts;
+  if(G.run&&curTab==='game'){
+    G.spawn-=dt;if(G.spawn<=0){spawn();G.spawn=.8+Math.random()*.8}
+    for(const e of G.en.slice()){
+      e.x+=e.vx*dt;if(e.x<.05||e.x>.95)e.vx*=-1;e.fuse-=dt;
+      if(e.fuse<=0){G.en.splice(G.en.indexOf(e),1);G.hp-=10;G.hurt=.35;ui();if(G.hp<=0)over()}
+    }
+    if(G.reload>0){G.reload-=dt;if(G.reload<=0){G.reload=0;G.ammo=30;ui()}}
+    G.flash=Math.max(0,G.flash-dt);G.hurt=Math.max(0,G.hurt-dt);
+  }
+  if(curTab==='game')draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+
 /* ---- Presence database: visitors/<id> = {firstSeen,lastSeen,visits,page} ---- */
 const TABS={lobby:'לובי',squad:'חוליה',store:'חנות',game:'במשחק',online:'מחוברים'};
 const ONLINE_MS=120000, BEAT_MS=45000;
 let user=null, rows=[];
-const $=id=>document.getElementById(id);
 function ago(ts){
   const d=Date.now()-ts; if(!ts)return 'יצא';
   if(d<ONLINE_MS)return 'עכשיו';
