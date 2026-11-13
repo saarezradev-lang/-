@@ -1,19 +1,16 @@
-<!doctype html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vanguard Strike – Wide</title>
+<title>Vanguard Strike</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <style>
 :root{
   --bg:#0b0c0e; --panel:#14161a; --panel2:#1b1e23; --line:#2a2d33;
   --gold:#e0a526; --gold2:#f3c04a; --text:#f1f1f1; --mute:#8b8f98;
   --green:#3ddc84; --red:#e5484d; --blue:#4aa3ff;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:"Segoe UI",Heebo,Arial,sans-serif;min-height:100vh;
+body{background:var(--bg);color:var(--text);font-size:16px;font-family:"Segoe UI",Heebo,Arial,sans-serif;min-height:100vh;
   background-image:radial-gradient(ellipse at 70% 0%,#2a2214 0,transparent 55%),radial-gradient(ellipse at 0% 100%,#10151c 0,transparent 50%)}
-header{display:flex;align-items:center;gap:24px;padding:14px clamp(16px,4vw,48px);border-bottom:1px solid var(--line);background:#0d0e11cc;position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+header{display:flex;align-items:center;gap:24px;padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));flex-wrap:wrap;border-bottom:1px solid var(--line);background:#0d0e11}
 .logo{display:flex;align-items:center;gap:10px;direction:ltr;font-weight:800;letter-spacing:2px;line-height:1}
 .logo b{font-size:22px}.logo small{display:block;color:var(--gold);font-size:11px;letter-spacing:5px}
 .logo svg{width:34px;height:34px}
@@ -26,7 +23,7 @@ nav button.on{background:var(--panel2);color:var(--gold);box-shadow:inset 0 0 0 
 .chip i{width:14px;height:14px;border-radius:50%;background:var(--gold);display:inline-block}
 .chip i.g{background:#8fb4d9}
 .avatar{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#444,#222);border:1px solid var(--line)}
-main{padding:28px clamp(16px,4vw,48px) 60px;max-width:1600px;margin:auto}
+main{padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1600px;margin:auto}
 section{display:none;animation:in .3s}
 section.on{display:block}
 @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
@@ -103,9 +100,28 @@ h3.sec{margin:28px 0 14px;color:var(--gold)}
 .note{color:var(--mute);margin-top:14px;font-size:14px}
 
 @media(max-width:900px){.lobby,.squad{grid-template-columns:1fr}nav{overflow:auto}.me .chip:nth-child(n+3){display:none}}
+
+/* Presence */
+.cnt{background:var(--green);color:#06210f;font-size:12px;font-weight:800;border-radius:999px;min-width:20px;padding:1px 6px;text-align:center}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+.kpis .lbl{color:var(--mute);font-size:13px}
+.kpis .big{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums}
+.kpis .big.live{color:var(--green)}
+.tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:12px 16px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-size:13px;font-weight:600}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.who{display:flex;align-items:center;gap:10px}
+.who img{width:28px;height:28px;border-radius:8px}
+.me-tag{color:var(--gold);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--panel2);color:var(--mute)}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.pill.on{color:var(--green)}.pill.on::before{background:var(--green)}
+.empty{padding:28px;text-align:center;color:var(--mute)}
 </style>
-</head>
-<body>
+<div id="app" dir="rtl">
 <header>
   <div class="logo">
     <svg viewBox="0 0 40 40"><path d="M4 6l16 28L36 6h-8L20 20 12 6z" fill="#e0a526"/></svg>
@@ -116,6 +132,7 @@ h3.sec{margin:28px 0 14px;color:var(--gold)}
     <button data-t="squad">👥 חוליה</button>
     <button data-t="store">🛒 חנות</button>
     <button data-t="game">🎯 במשחק</button>
+    <button data-t="online">מחוברים <span class="cnt" id="navCount">0</span></button>
   </nav>
   <div class="me">
     <div class="chip"><i></i>24.5K</div>
@@ -185,6 +202,21 @@ h3.sec{margin:28px 0 14px;color:var(--gold)}
   </div>
 </section>
 
+<!-- ONLINE -->
+<section id="online">
+  <h2>מי באתר</h2><div class="bar"></div>
+  <div class="kpis">
+    <div class="stat"><div class="lbl">מחוברים עכשיו</div><div class="big live" id="kOnline">0</div></div>
+    <div class="stat"><div class="lbl">סה״כ מבקרים</div><div class="big" id="kTotal">0</div></div>
+    <div class="stat"><div class="lbl">סה״כ ביקורים</div><div class="big" id="kVisits">0</div></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>שם</th><th>סטטוס</th><th>נמצא ב</th><th>נראה לאחרונה</th><th>ביקורים</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="5" class="empty" id="dbState">טוען את מסד הנתונים…</td></tr></tbody>
+  </table></div>
+  <p class="note">מסד הנתונים נשמר בין ביקורים. משתמש נחשב מחובר אם נראה בשתי הדקות האחרונות.</p>
+</section>
+
 <!-- GAME HUD -->
 <section id="game">
   <div class="hud">
@@ -201,7 +233,9 @@ h3.sec{margin:28px 0 14px;color:var(--gold)}
 </main>
 
 <script>
+let curTab='lobby';
 function go(t){
+  curTab=t; if(window.__beat)window.__beat();
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===t));
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   try{history.replaceState(null,'','#'+t)}catch(e){}
@@ -210,6 +244,71 @@ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.t
 document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('on'));m.classList.add('on')});
 document.querySelectorAll('.cls').forEach(c=>c.onclick=()=>{document.querySelectorAll('.cls').forEach(x=>x.classList.remove('on'));c.classList.add('on')});
 if(location.hash)go(location.hash.slice(1));
+
+/* ---- Presence database: visitors/<id> = {firstSeen,lastSeen,visits,page} ---- */
+const TABS={lobby:'לובי',squad:'חוליה',store:'חנות',game:'במשחק',online:'מחוברים'};
+const ONLINE_MS=120000, BEAT_MS=45000;
+let user=null, rows=[];
+const $=id=>document.getElementById(id);
+function ago(ts){
+  const d=Date.now()-ts; if(!ts)return 'יצא';
+  if(d<ONLINE_MS)return 'עכשיו';
+  const m=Math.floor(d/60000); if(m<60)return 'לפני '+m+' דק׳';
+  const h=Math.floor(m/60); if(h<24)return 'לפני '+h+' שע׳';
+  return new Date(ts).toLocaleDateString('he-IL');
+}
+async function render(){
+  const list=rows.slice().sort((a,b)=>(b.lastSeen||0)-(a.lastSeen||0));
+  const on=list.filter(r=>Date.now()-(r.lastSeen||0)<ONLINE_MS);
+  $('kOnline').textContent=on.length; $('navCount').textContent=on.length;
+  $('kTotal').textContent=list.length;
+  $('kVisits').textContent=list.reduce((n,r)=>n+(r.visits||0),0);
+  const tb=$('rows');
+  if(!list.length)return;
+  let ps={}; try{ps=await user.profiles(list.map(r=>r.id))}catch(e){}
+  tb.textContent='';
+  for(const r of list){
+    const isOn=on.includes(r), p=ps[r.id]||{};
+    const tr=document.createElement('tr');
+    const who=document.createElement('div'); who.className='who';
+    if(p.avatarUrl){const im=document.createElement('img');im.src=p.avatarUrl;im.alt='';who.append(im)}
+    const nm=document.createElement('span'); nm.textContent=p.name||'אורח'; who.append(nm);
+    if(p.isMe){const t=document.createElement('span');t.className='me-tag';t.textContent='(אתה)';who.append(t)}
+    const pill=document.createElement('span'); pill.className='pill'+(isOn?' on':''); pill.textContent=isOn?'מחובר':'לא מחובר';
+    const cells=[who,pill,TABS[r.page]||'—',ago(isOn?r.lastSeen:r.lastSeen||0),String(r.visits||0)];
+    for(const c of cells){const td=document.createElement('td'); td.append(c); tr.append(td)}
+    tb.append(tr);
+  }
+}
+async function startPresence(){
+  const msg=t=>{const e=$('dbState'); if(e)e.textContent=t};
+  try{
+    if(!window.claude||!claude.use){msg('מסד הנתונים זמין רק כשהעמוד נפתח דרך Claude.');return}
+    const db=await claude.use('db'); user=await claude.use('user');
+    if(!db||!user){msg('צריך להתחבר כדי לראות ולהירשם כמחובר.');return}
+    const uid=await user.id();
+    if(!uid){msg('לא זוהה משתמש מחובר.');return}
+    const timer=setTimeout(()=>msg('מסד הנתונים לא זמין כרגע. מנסה שוב…'),10000);
+    db.collection('visitors').onSnapshot(snap=>{
+      if(!snap.metadata.fromCache)clearTimeout(timer);
+      rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+      if(!rows.length)msg('עוד אין מבקרים.');
+      render();
+    },e=>msg('שגיאת מסד נתונים: '+e.code));
+    const ref=db.doc('visitors/'+uid);
+    const prev=(await ref.get()).data()||{};
+    const now=Date.now();
+    await ref.set({firstSeen:prev.firstSeen||now,visits:(prev.visits||0)+1,lastSeen:now,page:curTab});
+    let busy=false;
+    window.__beat=async()=>{
+      if(busy)return; busy=true;
+      try{await ref.update({lastSeen:Date.now(),page:curTab})}catch(e){} finally{busy=false}
+    };
+    setInterval(window.__beat,BEAT_MS);
+    setInterval(render,15000);
+    addEventListener('pagehide',()=>{try{ref.update({lastSeen:0})}catch(e){}});
+  }catch(e){msg('שגיאה בטעינת מסד הנתונים.')}
+}
+startPresence();
 </script>
-</body>
-</html>
+</div>
