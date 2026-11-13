@@ -120,6 +120,30 @@ td{font-variant-numeric:tabular-nums}
 .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--mute)}
 .pill.on{color:var(--green)}.pill.on::before{background:var(--green)}
 .empty{padding:28px;text-align:center;color:var(--mute)}
+/* Phone landscape: short viewport, two-column everywhere, compact chrome */
+@media (orientation:landscape) and (max-height:520px){
+  header{padding-block:6px;gap:12px;flex-wrap:nowrap}
+  .logo b{font-size:16px}.logo small{font-size:9px;letter-spacing:3px}.logo svg{width:24px;height:24px}
+  nav button{padding:6px 12px;font-size:13px}
+  .chip{padding:4px 8px;font-size:12px}
+  .me .chip:nth-child(3){display:none}
+  main{padding-block:12px 24px}
+  h2{font-size:20px}.bar{margin:4px 0 12px}
+  .lobby{grid-template-columns:1.6fr 1fr;gap:12px}
+  .squad{grid-template-columns:1.4fr 1fr;gap:12px}
+  .hero{min-height:calc(100vh - 80px);padding:16px;border-radius:14px}
+  .hero h1{font-size:clamp(24px,5vw,40px)}
+  .gun{inset:6% 6% 28% 6%}
+  .side{gap:8px}.mode{padding:10px 14px}.stat{padding:10px 14px}
+  .side .btn{padding:12px;font-size:16px}
+  .cls{height:150px}
+  .actions{margin-top:8px}.btn{padding:10px 18px}
+  .banner{min-height:150px;padding:20px;margin-bottom:14px}
+  .grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .item{padding:10px}.item .ph{height:70px}
+  .hud{aspect-ratio:auto;height:calc(100vh - 90px);min-height:0}
+  .kpis .big{font-size:24px}
+}
 </style>
 <div id="app" dir="rtl">
 <header>
