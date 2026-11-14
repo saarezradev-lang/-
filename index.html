@@ -262,7 +262,13 @@ td{font-variant-numeric:tabular-nums}
     <div class="kill" id="kill">GHOST_94 ✕ —</div>
     <div class="score">ניקוד <b id="score">0</b> · שיא <b id="best">0</b></div>
     <div class="cross" id="cross"></div>
-    <div class="hudgun" id="gun"><svg viewBox="0 0 600 260" fill="#050608" stroke="#333" stroke-width="2"><path d="M600 260V150L330 100H180l-60 70 60 90z"/><rect x="300" y="60" width="80" height="50" rx="6"/></svg></div>
+    <div class="hudgun" id="gun"><svg viewBox="0 0 600 300"><defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3f48"/><stop offset=".5" stop-color="#1b1e23"/><stop offset="1" stop-color="#07080a"/></linearGradient><radialGradient id="gl"><stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#5a0f12"/></radialGradient></defs>
+<path d="M600 300V196L372 128H292l-52 172z" fill="url(#gm)" stroke="#555b66" stroke-width="2"/>
+<path d="M372 124L120 100l-6 14 238 34z" fill="url(#gm)" stroke="#555b66" stroke-width="2"/>
+<path d="M300 140l-10 28 96 26 4-24z" fill="#101216" stroke="#3a3f48"/>
+<rect x="318" y="62" width="104" height="58" rx="10" fill="url(#gm)" stroke="#6a7280" stroke-width="2"/>
+<circle cx="370" cy="90" r="17" fill="#05070a" stroke="#6a7280" stroke-width="2"/><circle cx="370" cy="90" r="4" fill="url(#gl)"/>
+<path d="M430 150l150 48M300 166l-30 134" stroke="#2a2d33" stroke-width="3" fill="none"/></svg></div>
     <div class="hp">✚ <span id="hpn">100</span><div class="t"><i id="hpb"></i></div><span id="ammo">30</span>/30</div>
     <div class="fire" id="reload">↻</div>
     <div class="ov" id="ov"><h3 id="ovT">Vanguard Range</h3><p id="ovP">הפל כמה שיותר אויבים לפני שהם יורים בך. ירייה בראש = נזק כפול.</p><button class="btn" id="startBtn">התחל</button><small>לחיצה / מגע = ירי · R או ↻ = טעינה</small></div>
@@ -340,11 +346,16 @@ function draw(){
   ctx.fillStyle='#14110c';for(const [cx,cw,ch] of [[.04,.14,.2],[.3,.1,.14],[.7,.16,.22],[.9,.12,.16]])ctx.fillRect(W*cx,H*.62-H*ch,W*cw,H*ch);
   ctx.fillStyle='#100d09';ctx.fillRect(0,H*.62,W,H*.38);
   for(const e of G.en.slice().sort((a,b)=>a.s-b.s)){
-    const q=geo(e),hot=e.fuse<.7;
-    if(hot){ctx.fillStyle='rgba(229,72,77,.25)';ctx.beginPath();ctx.arc(q.x,q.fy-q.h*.5,q.h*.6,0,7);ctx.fill()}
-    ctx.fillStyle=hot?'#3a1416':'#050608';ctx.strokeStyle=hot?'#e5484d':'#333';ctx.lineWidth=2;
-    ctx.fillRect(q.x-q.w/2,q.fy-q.h*.8,q.w,q.h*.8);ctx.strokeRect(q.x-q.w/2,q.fy-q.h*.8,q.w,q.h*.8);
-    ctx.beginPath();ctx.arc(q.x,q.hy,q.hr,0,7);ctx.fill();ctx.stroke();
+    const q=geo(e),hot=e.fuse<.7,w=q.w,h=q.h,x=q.x,fy=q.fy;
+    ctx.fillStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.ellipse(x,fy+h*.02,w*.9,h*.05,0,0,7);ctx.fill();
+    if(hot){const r=ctx.createRadialGradient(x,fy-h*.5,0,x,fy-h*.5,h*.65);r.addColorStop(0,'rgba(229,72,77,.4)');r.addColorStop(1,'rgba(229,72,77,0)');ctx.fillStyle=r;ctx.beginPath();ctx.arc(x,fy-h*.5,h*.65,0,7);ctx.fill()}
+    const body=hot?'#2a1214':'#0a0b0e',rim=hot?'#e5484d':'#7a5f2a';
+    ctx.fillStyle=body;ctx.strokeStyle=rim;ctx.lineWidth=Math.max(1.5,h*.012);
+    ctx.fillRect(x-w*.34,fy-h*.38,w*.28,h*.38);ctx.fillRect(x+w*.06,fy-h*.38,w*.28,h*.38);ctx.strokeRect(x-w*.34,fy-h*.38,w*.28,h*.38);ctx.strokeRect(x+w*.06,fy-h*.38,w*.28,h*.38);
+    ctx.beginPath();ctx.moveTo(x-w*.55,fy-h*.8);ctx.lineTo(x+w*.55,fy-h*.8);ctx.lineTo(x+w*.4,fy-h*.36);ctx.lineTo(x-w*.4,fy-h*.36);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#14161a';ctx.fillRect(x-w*.7,fy-h*.6,w*1.4,h*.07);
+    ctx.fillStyle=body;ctx.beginPath();ctx.arc(x,q.hy,q.hr,0,7);ctx.fill();ctx.stroke();
+    ctx.fillStyle=hot?'#e5484d':'#3a3f48';ctx.fillRect(x-q.hr*.85,q.hy-q.hr*.1,q.hr*1.7,q.hr*.4);
   }
   if(G.hurt>0){ctx.fillStyle='rgba(229,72,77,'+G.hurt+')';ctx.fillRect(0,0,W,H)}
   if(G.flash>0){const r=ctx.createRadialGradient(W*.5,H*.8,0,W*.5,H*.8,H*.35);r.addColorStop(0,'rgba(255,220,120,.6)');r.addColorStop(1,'rgba(255,220,120,0)');ctx.fillStyle=r;ctx.fillRect(0,0,W,H)}
