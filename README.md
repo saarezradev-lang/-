@@ -1,11 +1,20 @@
-<div align="center">
+# יאפו YAPO
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+אתר/אפליקציית PWA בפייטון (Flask), מותאם לטלפון – ניתן להתקין למסך הבית.
 
-  <h1>Built with AI Studio</h2>
+## הרצה
+```bash
+pip install -r requirements.txt
+python app.py            # http://localhost:8000
+# פרודקשן:
+gunicorn -b 0.0.0.0:8000 app:app
+```
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## התקנה בטלפון
+פתחו את הכתובת בטלפון (HTTPS נדרש מחוץ ל-localhost) ← "הוסף למסך הבית".
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+## רשימת ההמתנה
+נשמרת ב-SQLite (`yapo.db`). לצפייה:
+```bash
+sqlite3 yapo.db "select email, role, created from waitlist"
+```
